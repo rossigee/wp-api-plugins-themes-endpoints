@@ -210,6 +210,7 @@ class WP_Test_REST_Plugins_Controller extends WP_Test_REST_Controller_TestCase {
 		$this->assertArrayHasKey( 'text_domain', $properties );
 		$this->assertArrayHasKey( 'domain_path', $properties );
 		$this->assertArrayHasKey( 'network', $properties );
+		$this->assertArrayHasKey( 'active', $properties );
 		$this->assertArrayHasKey( 'title', $properties );
 		$this->assertArrayHasKey( 'author_name', $properties );
 

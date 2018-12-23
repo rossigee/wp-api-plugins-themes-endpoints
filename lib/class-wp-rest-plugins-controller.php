@@ -88,7 +88,19 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 		// Split plugins array.
 		$plugins = array_slice( $plugins, $offset, $length );
 
+		// Prepare an array of active plugin names
+		$active_plugin_names = array();
+		$active_plugins = get_option('active_plugins');
+		foreach ( $active_plugins as $active_plugin ) {
+			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $active_plugin );
+			if ( $plugin_data['Name'] != '' ) {
+				$active_plugin_names[] = $plugin_data['Name'];
+			}
+		}
+
 		foreach ( $plugins as $obj ) {
+			$plugin_name = $obj['Name'];
+			$obj['Active'] = in_array($plugin_name, $active_plugin_names);
 			$plugin = $this->prepare_item_for_response( $obj, $request );
 
 			if ( is_wp_error( $plugin ) ) {
@@ -119,6 +131,9 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 			$next_link = add_query_arg( 'page', $next_page, $base );
 			$response->link_header( 'next', $next_link );
 		}
+
+		// Add active plugin count header to response.
+		$response->header( 'X-WP-TotalActive', count($active_plugins) );
 
 		// Return requested collection.
 		return $response;
@@ -250,6 +265,11 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 					'type'        => 'string',
 					'readonly'    => true,
 				),
+				'active'     => array(
+					'description' => __( 'Whether the plugin is in the list of active plugins.' ),
+					'type'        => 'string',
+					'readonly'    => true,
+				),
 				// @TODO Possibly delete this from schema as it is somewhat duplicate data.
 				'author_name' => array(
 					'description' => __( 'Name of plugin author.' ),
@@ -315,6 +335,10 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 
 		if ( isset( $schema['properties']['network'] ) ) {
 			$data['network'] = $plugin['Network'];
+		}
+
+		if ( isset( $schema['properties']['active'] ) ) {
+			$data['active'] = $plugin['Active'];
 		}
 
 		if ( isset( $schema['properties']['title'] ) ) {
