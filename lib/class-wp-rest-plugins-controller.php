@@ -57,7 +57,7 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 		$data = array();
 
 		require_once ABSPATH . '/wp-admin/includes/plugin.php';
-		$plugins = get_plugins();
+		$plugins = apply_filters( 'all_plugins', get_plugins() );
 
 		// Exit early if empty set.
 		if ( empty( $plugins ) ) {
@@ -89,11 +89,10 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 		$plugins = array_slice( $plugins, $offset, $length );
 
 		// Prepare an array of active plugin names
+		require_once(ABSPATH . 'wp-admin/includes/plugin.php');
 		$active_plugin_names = array();
-		$active_plugins = get_option('active_plugins');
-		foreach ( $active_plugins as $active_plugin ) {
-			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $active_plugin );
-			if ( $plugin_data['Name'] != '' ) {
+		foreach ( $plugins as $plugin_file => $plugin_data) {
+			if ( is_plugin_active( $plugin_file ) ) {
 				$active_plugin_names[] = $plugin_data['Name'];
 			}
 		}
