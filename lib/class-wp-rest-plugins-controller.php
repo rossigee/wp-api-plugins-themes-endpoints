@@ -132,7 +132,7 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 		}
 
 		// Add active plugin count header to response.
-		$response->header( 'X-WP-TotalActive', count($active_plugins) );
+		$response->header( 'X-WP-TotalActive', count($active_plugin_names) );
 
 		// Return requested collection.
 		return $response;
